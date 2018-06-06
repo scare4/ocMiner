@@ -251,7 +251,6 @@ end
 function main(boot)
     if boot then
         initRobot()
-        writeData()
     else
         initData()
     end
