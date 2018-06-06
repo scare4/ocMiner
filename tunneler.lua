@@ -64,8 +64,8 @@ function initRobot()
 end
 
 function initDisplay()
-    --term.clear()
-    gpu.setResolution(50*16)
+    term.clear()
+    gpu.setResolution(50, 16)
     term.write('  Welcome to the miner')
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
