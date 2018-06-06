@@ -72,6 +72,7 @@ function initDisplay()
     local inp_str = ''
     while inp_str ~= 'y' or inp_str ~= 'n' do
         term.write('please use \'y\' or \'n\'')
+        inp_str = term.read()
     end
     local ret
     if inp_str == 'n' then
