@@ -152,6 +152,7 @@ function refuel()
         end
         redstone.setOutput(back, 0)
         returnToWorkPos()
+        return true
     end
 end
 
@@ -204,7 +205,9 @@ function digLeftSide()
     robot.turnLeft()
     data.orientation = 3
     while data.moved_sides > 0 do
-        refuel()
+        if refuel() then
+            return
+        end
         moveForward()
         data.moved_sides = data.moved_sides - 1
     end
@@ -215,7 +218,7 @@ end
 function digRightSide()
     robot.turnRight()
     data.orientation = 3
-    while data.moved_side < data.expected_sideways do
+    while data.moved_side < (data.expected_sideways * -1) do
         refuel()
         moveForward()
         digUp()
@@ -225,7 +228,9 @@ function digRightSide()
     robot.turnRight()
     data.orientation = 1
     while data.moved_sides < 0 do
-        refuel()
+        if refuel() then
+            return
+        end
         moveForward()
         data.moved_sides = data.moved_sides + 1
     end
