@@ -95,6 +95,7 @@ function dig()
             br = robot.swing(sides.front)
         end
         robot.suck()
+        data.mined_blocks = data.mined_blocks + 1
     end
 end
 
@@ -108,6 +109,7 @@ function digUp()
             br = robot.swing(sides.top)
         end
         robot.suck()
+        data.mined_blocks = data.mined_blocks + 1
     end
 end
 
@@ -134,6 +136,7 @@ function digLeftSide()
     while data.moved_sides > 0 do
         refuel()
         moveForward()
+        data.moved_sides = data.moved_sides - 1
     end
     robot.turnLeft()
     data.orientation = 0
@@ -154,13 +157,19 @@ function digRightSide()
     while data.moved_sides < 0 do
         refuel()
         moveForward()
+        data.moved_sides = data.moved_sides + 1
     end
     robot.turnRight()
     data.orientation = 0
 end
 
 function digNextLane()
-
+    moveForward()
+    data.moved_forwards = data.moved_forwards + 1
+    digUp()
+    refuel()
+    digLeftSide()
+    digRightSide()
 end
 
 function main(boot)
