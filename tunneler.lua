@@ -14,8 +14,9 @@ local data = {
     mined_blocks = 0,
     moved_forwards = 0,
     moved_sides = 0,
+    orientation = 0,
     expected_forwards = 0,
-    expected_backwards = 0
+    expected_sideways = 0
 }
 
 function initData()
@@ -26,8 +27,9 @@ function initData()
     data.mined_blocks = json_data.mined_blocks
     data.moved_forward = json_data.moved_forward
     data.moved_side = json_data.moved_side
+    data.orientation = json_data.orientation
     data.expected_forwards = json_data.expected_forwards
-    data.expected_backwards = json_data.expected_backwards
+    data.expected_sideways = json_data.expected_sideways
 end
 
 function writeData()
@@ -41,6 +43,7 @@ function initRobot()
     data.mined_blocks = 0
     data.moved_forward = 0
     data.moved_side = 0
+    data.orientation = 0
     write_data()
 end
 
@@ -109,15 +112,47 @@ function digUp()
 end
 
 function moveForward()
-
+    local move = robot.forward()
+    if not move then
+        dig()
+        robot.forward()
+    end
 end
 
 function digLeftSide()
-
+    robot.turnLeft()
+    data.orientation = 1
+    while data.moved_sides < data.expected_sideways do
+        refuel()
+        moveForward()
+        digUp()
+        data.moved_sides = data.moved_sides + 1
+    end
+    robot.turnLeft()
+    robot.turnLeft()
+    data.orientation = 3
+    while data.moved_sides > 0 do
+        refuel()
+        moveForward()
+    end
 end
 
 function digRightSide()
-
+    robot.turnRight()
+    data.orientation = 3
+    while data.moved_side < data.expected_sideways do
+        refuel()
+        moveForward()
+        digUp()
+        data.moved_sides = data.moved_sides - 1
+    end
+    robot.turnRight()
+    robot.turnRight()
+    data.orientation = 1
+    while data.moved_sides < 0 do
+        refuel()
+        moveForward()
+    end
 end
 
 function digNextLane()
