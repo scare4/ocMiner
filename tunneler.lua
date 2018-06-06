@@ -9,10 +9,10 @@ local redstone = component.redstone
 local gpu = term.gpu()
 
 local data_path = './data/miner_data.json'
-local err_file = io.open('./error.txt', 'w')=
-function io.stderr:write(str)
-    err_file:write(str..'\n')
-end
+-- local err_file = io.open('./error.txt', 'w')
+-- function io.stderr:write(str)
+--     err_file:write(str..'\n')
+-- end
 
 
 local data = {
@@ -64,7 +64,7 @@ function initRobot()
 end
 
 function initDisplay()
-    term.clear()
+    --term.clear()
     gpu.setResolution(50*16)
     term.write('  Welcome to the miner')
     term.write('------------------------\n')
