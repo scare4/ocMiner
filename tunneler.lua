@@ -36,7 +36,7 @@ function initData()
     local json_data = json.decode(json_string)
     data.state = json_data.state
     data.mined_blocks = json_data.mined_blocks
-    data.moved_forward = json_data.moved_forward
+    data.moved_forwards = json_data.moved_forwards
     data.moved_side = json_data.moved_side
     data.orientation = json_data.orientation
     data.expected_forwards = json_data.expected_forwards
@@ -52,7 +52,7 @@ end
 function initRobot()
     data.state = 'start'
     data.mined_blocks = 0
-    data.moved_forward = 0
+    data.moved_forwards = 0
     data.moved_side = 0
     data.orientation = 0
     write_data()
@@ -139,9 +139,11 @@ function refuel()
     if energy_level < 15 then
         term.write('low power, going to charge pad')
         returnToCharge()
+        redstone.setOutput(back, 15)
         while (computer.energy() / computer.maxEnergy() * 100) < 95 do
             os.sleep(1)
         end
+        redstone.setOutput(back, 0)
         returnToWorkPos()
     end
 end
@@ -234,7 +236,30 @@ function digNextLane()
 end
 
 function main(boot)
-
+    if boot then
+        initRobot()
+        writeData()
+    else
+        initData()
+    end
+    refuel()
+    while data.moved_forwards < data.expected_forwards do
+        refuel()
+        moveForward()
+        digUp()
+        data.moved_forwards = data.moved_forwards + 1
+        if data.moved_forwards % 3 == 0 then
+            digLeftSide()
+            digRightSide()
+        end
+    end
+    returnToCharge()
+    redstone.setOutput(back, 15)
+    while (computer.energy() / computer.maxEnergy() * 100) < 95 do
+        os.sleep(1)
+    end
+    redstone.setOutput(back, 0)
+    term.write('A job well done, blocks mined : '..data.mined_blocks)
 end
 
 --entry point
