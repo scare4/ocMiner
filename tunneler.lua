@@ -9,7 +9,7 @@ local redstone = component.redstone
 local gpu = term.gpu()
 
 local data_path = './data/miner_data.json'
-io.stderr = './error.txt'
+io.stderr = io.open('./error.txt', 'w')
 
 local data = {
     state = '',
