@@ -65,17 +65,17 @@ end
 
 function initDisplay()
     term.clear()
-    gpu.setResolution(50, 16)
+    gpu.setResolution(50, 16)   
     term.write('  Welcome to the miner')
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
     local inp_str = ''
-    while inp_str ~= 'y' or inp_str ~= 'n' do
+    while inp_str:sub(1,1) ~= 'y' or inp_str:sub(1,1) ~= 'n' do
         term.write('please use \'y\' or \'n\'')
         inp_str = term.read()
     end
     local ret
-    if inp_str == 'n' then
+    if inp_str:sub(1,1) == 'n' then
         robot.selct(16)
         if not robot.compareDown() then
             term.write('please put the robot on top of the block in slot 16 (bottom right corner) facing towards the excavation direction')
