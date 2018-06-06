@@ -21,8 +21,8 @@ local data = {
     moved_forwards = 0,
     moved_sides = 0,
     orientation = 0,
-    expected_forwards = 0,
-    expected_sideways = 0
+    expected_forwards = 10,
+    expected_sideways = 2
 }
 
 local tmp_data = {
@@ -52,6 +52,7 @@ function writeData()
     local json_string = json.encode(data)
     local data_file = io.open(data_path, 'w')
     data_file:write(json_string)
+    data_file:close()
 end
 
 function initRobot()
@@ -60,23 +61,23 @@ function initRobot()
     data.moved_forwards = 0
     data.moved_side = 0
     data.orientation = 0
-    write_data()
+    writeData()
 end
 
 function initDisplay()
     term.clear()
     gpu.setResolution(50, 16)   
-    term.write('  Welcome to the miner')
+    term.write('  Welcome to the miner\n')
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
-    local inp_str = ''
-    while inp_str:sub(1,1) ~= 'y' or inp_str:sub(1,1) ~= 'n' do
-        term.write('please use \'y\' or \'n\'')
-        inp_str = term.read()
-    end
+    local inp_str = 'n'
+    --while inp_str ~= 'y\n' or inp_str ~= 'n\n' do
+--        term.write('please use \'y\' or \'n\'')
+--        inp_str = term.read()
+--    end
     local ret
-    if inp_str:sub(1,1) == 'n' then
-        robot.selct(16)
+    if inp_str == 'n' then
+        robot.select(16)
         if not robot.compareDown() then
             term.write('please put the robot on top of the block in slot 16 (bottom right corner) facing towards the excavation direction')
             os.exit()
@@ -260,11 +261,11 @@ function main(boot)
         end
     end
     returnToCharge()
-    redstone.setOutput(back, 15)
+    redstone.setOutput(sides.back, 15)
     while (computer.energy() / computer.maxEnergy() * 100) < 95 do
         os.sleep(1)
     end
-    redstone.setOutput(back, 0)
+    redstone.setOutput(sides.back, 0)
     term.write('A job well done, blocks mined : '..data.mined_blocks)
 end
 
