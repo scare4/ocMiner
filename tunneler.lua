@@ -74,6 +74,10 @@ function initDisplay()
     return ret
 end
 
+function returnToCharge()
+
+end
+
 function refuel()
 
 end
@@ -83,16 +87,25 @@ function dig()
     if not front or what == "replaceable" or what == "liquid" then
         return
     else
-        break = false
-        while not break do
-            break = robot.swing(sides.front)
+        br = false
+        while not br do
+            br = robot.swing(sides.front)
         end
         robot.suck()
     end
 end
 
 function digUp()
-
+    local top, what = robot.detectUp()
+    if not top or what == "replaceable" or what == "liquid" then
+        return
+    else
+        br = false
+        while not br do
+            br = robot.swing(sides.top)
+        end
+        robot.suck()
+    end
 end
 
 function moveForward()
