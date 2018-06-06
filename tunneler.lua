@@ -1,3 +1,5 @@
+local arg = {...}
+
 local json = require('stdlibs.json')
 local robot = require('robot')
 local sides = require('sides')
@@ -9,11 +11,6 @@ local redstone = component.redstone
 local gpu = term.gpu()
 
 local data_path = './data/miner_data.json'
--- local err_file = io.open('./error.txt', 'w')
--- function io.stderr:write(str)
---     err_file:write(str..'\n')
--- end
-
 
 local data = {
     state = '',
@@ -70,13 +67,13 @@ function initDisplay()
     term.write('  Welcome to the miner\n')
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
-    local inp_str = 'n'
-    --while inp_str ~= 'y\n' or inp_str ~= 'n\n' do
---        term.write('please use \'y\' or \'n\'')
---        inp_str = term.read()
---    end
+    local inp_str = ''
+    while inp_str == 'y\n' or inp_str == 'n\n' do
+        term.write('please use \'y\' or \'n\'')
+        inp_str = term.read()
+    end
     local ret
-    if inp_str == 'n' then
+    if inp_str == 'n\n' then
         robot.select(16)
         if not robot.compareDown() then
             term.write('please put the robot on top of the block in slot 16 (bottom right corner) facing towards the excavation direction')
