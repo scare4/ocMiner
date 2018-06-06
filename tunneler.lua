@@ -72,7 +72,7 @@ function initDisplay()
     if inp_str == 'n' then
         robot.selct(16)
         if not robot.compareDown() then
-            term.write('please put the robot on top of a charger facing towards the excavation direction')
+            term.write('please put the robot on top of the block in slot 16 (bottom right corner) facing towards the excavation direction')
             os.exit()
         else
             ret = true
@@ -116,15 +116,22 @@ function returnToCharge()
             data.orientation = 0
         end
     end
-    robot.select(16)
-    while not robot.compareDown() do
+    while data.moved_forwards > 0 do
         robot.back()
         data.moved_forwards = data.moved_forwards - 1
     end
 end
 
 function returnToWorkPos()
-
+    while data.moved_forwards < tmp_data.moved_forwards do
+        robot.forward()
+        data.moved_forwards = data.moved_forwards + 1
+    end
+    if tmp_data.moved_sides > 0 then
+        digLeftSide()
+    elseif tmp_data.moved_sides < 0 then
+        digRightSide()
+    end
 end
 
 function refuel()
