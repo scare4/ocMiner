@@ -3,6 +3,7 @@ local robot = require('robot')
 local sides = require('sides')
 local component = require('component')
 local term = require('term')
+local computer = require('computer')
 
 local redstone = component.redstone
 local gpu = term.gpu()
@@ -10,6 +11,16 @@ local gpu = term.gpu()
 local data_path = './data/miner_data.json'
 
 local data = {
+    state = '',
+    mined_blocks = 0,
+    moved_forwards = 0,
+    moved_sides = 0,
+    orientation = 0,
+    expected_forwards = 0,
+    expected_sideways = 0
+}
+
+local tmp_data = {
     state = '',
     mined_blocks = 0,
     moved_forwards = 0,
@@ -59,7 +70,8 @@ function initDisplay()
     end
     local ret
     if inp_str == 'n' then
-        if not robot.compareTo(16) then
+        robot.selct(16)
+        if not robot.compareDown() then
             term.write('please put the robot on top of a charger facing towards the excavation direction')
             os.exit()
         else
@@ -78,11 +90,53 @@ function initDisplay()
 end
 
 function returnToCharge()
+    tmp_data = data
+    if data.orientation ~= 0 then
+        if data.orientation == 3 then
+            while data.moved_sides < 0 do
+                robot.back()
+                data.moved_sides = data.moved_sides + 1
+            end
+            while data.moved_sides > 0 do
+                robot.forward()
+                data.moved_sides = data.moved_sides - 1
+            end
+            robot.turnLeft()
+            data.orientation = 0
+        else
+            while data.moved_sides < 0 do
+                robot.forward()
+                data.moved_sides = data.moved_sides + 1
+            end
+            while data.moved_sides > 0 do
+                robot.back()
+                data.moved_sides = data.moved_sides - 1
+            end
+            robot.turnRight()
+            data.orientation = 0
+        end
+    end
+    robot.select(16)
+    while not robot.compareDown() do
+        robot.back()
+        data.moved_forwards = data.moved_forwards - 1
+    end
+end
+
+function returnToWorkPos()
 
 end
 
 function refuel()
-
+    local energy_level = computer.energy() / computer.maxEnergy() * 100
+    if energy_level < 15 then
+        term.write('low power, going to charge pad')
+        returnToCharge()
+        while (computer.energy() / computer.maxEnergy() * 100) < 95 do
+            os.sleep(1)
+        end
+        returnToWorkPos()
+    end
 end
 
 function dig()
