@@ -21,8 +21,8 @@ local data = {
     moved_forwards = 0,
     moved_sides = 0,
     orientation = 0,
-    expected_forwards = 10,
-    expected_sideways = 2
+    expected_forwards = 150,
+    expected_sideways = 25
 }
 
 local tmp_data = {
@@ -146,11 +146,11 @@ function refuel()
     if energy_level < 15 then
         term.write('low power, going to charge pad')
         returnToCharge()
-        redstone.setOutput(back, 15)
+        redstone.setOutput(sides.top, 15)
         while (computer.energy() / computer.maxEnergy() * 100) < 95 do
             os.sleep(1)
         end
-        redstone.setOutput(back, 0)
+        redstone.setOutput(sides.top, 0)
         returnToWorkPos()
         return true
     end
@@ -175,9 +175,9 @@ function digUp()
     if not top or what == "replaceable" or what == "liquid" then
         return
     else
-        br = false
-        while not br do
-            br = robot.swing(sides.top)
+        local br = true
+        while br do
+            br = robot.swingUp(sides.top)
         end
         robot.suck()
         data.mined_blocks = data.mined_blocks + 1
@@ -196,7 +196,9 @@ function digLeftSide()
     robot.turnLeft()
     data.orientation = 1
     while data.moved_sides < data.expected_sideways do
-        refuel()
+        if refuel() then
+            return
+        end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides + 1
@@ -218,8 +220,10 @@ end
 function digRightSide()
     robot.turnRight()
     data.orientation = 3
-    while data.moved_side < (data.expected_sideways * -1) do
-        refuel()
+    while data.moved_sides > (data.expected_sideways * -1) do
+        if refuel() then
+            return
+        end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides - 1
