@@ -135,6 +135,8 @@ function digLeftSide()
         refuel()
         moveForward()
     end
+    robot.turnLeft()
+    data.orientation = 0
 end
 
 function digRightSide()
@@ -153,6 +155,8 @@ function digRightSide()
         refuel()
         moveForward()
     end
+    robot.turnRight()
+    data.orientation = 0
 end
 
 function digNextLane()
