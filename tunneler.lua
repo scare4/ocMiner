@@ -139,7 +139,7 @@ end
 
 function refuel()
     local energy_level = computer.energy() / computer.maxEnergy() * 100
-    if energy_level < 15 then
+    if energy_level < 10 then
         term.write('low power, going to charge pad')
         returnToCharge()
         redstone.setOutput(sides.top, 15)
@@ -250,9 +250,8 @@ end
 function main(boot)
     if boot then
         initRobot()
-        writeData()
     else
-        initData()
+        initData()    
     end
     refuel()
     while data.moved_forwards < data.expected_forwards do
