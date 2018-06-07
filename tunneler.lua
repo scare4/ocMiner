@@ -168,11 +168,15 @@ function refuel()
     if energy_level < 10 then
         term.write('low power, going to charge pad')
         returnToCharge()
-        redstone.setOutput(sides.top, 15)
+        for i=1,6 do
+            redstone.setOutput(i, 15)
+        end
         while (computer.energy() / computer.maxEnergy() * 100) < 95 do
             os.sleep(1)
         end
-        redstone.setOutput(sides.top, 0)
+        for i=1,6 do
+            redstone.setOutput(i, 0)
+        end
         returnToWorkPos()
         return true
     end
@@ -292,11 +296,6 @@ function main(boot)
         writeData()
     end
     returnToCharge()
-    redstone.setOutput(sides.back, 15)
-    while (computer.energy() / computer.maxEnergy() * 100) < 95 do
-        os.sleep(1)
-    end
-    redstone.setOutput(sides.back, 0)
     term.write('A job well done, blocks mined : '..data.mined_blocks)
 end
 
