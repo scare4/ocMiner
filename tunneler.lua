@@ -86,6 +86,32 @@ function initDisplay()
     term.clear()
     if ret then
         term.write('Starting a new session\n')
+        term.write('Please enter the length of the tunnel (positive integer)\n')
+        local correct_input = false
+        local inp_str = ''
+        repeat
+            inp_str = term.read()
+            local inp_num = tonumber(inp_str)
+            if type(inp_num) == 'number' and inp_num % 1 == 0 then
+                correct_input = true
+                data.expected_forwards = inp_num
+            else
+                term.write('Invalid input, please enter a positive integer')
+            end
+        until (correct_input)
+        term.write('Please enter the width of the tunnel (positive integer)\n')
+        correct_input = false
+        inp_str = ''
+        repeat
+            inp_str = term.read()
+            local inp_num = tonumber(inp_str)
+            if type(inp_num) == 'number' and inp_num % 1 == 0 then
+                correct_input = true
+                data.expected_sideways = inp_num
+            else
+                term.write('Invalid input, please enter a positive integer')
+            end
+        until (correct_input)
     else
         term.write('Continuing last session\n')
     end
@@ -263,6 +289,7 @@ function main(boot)
             digLeftSide()
             digRightSide()
         end
+        writeData()
     end
     returnToCharge()
     redstone.setOutput(sides.back, 15)
