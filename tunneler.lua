@@ -186,9 +186,9 @@ end
 
 function moveForward()
     local move = robot.forward()
-    if not move then
+    while not move do
         dig()
-        robot.forward()
+        move = robot.forward()
     end
 end
 
