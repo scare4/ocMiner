@@ -9,11 +9,6 @@ local redstone = component.redstone
 local gpu = term.gpu()
 
 local data_path = './data/miner_data.json'
--- local err_file = io.open('./error.txt', 'w')
--- function io.stderr:write(str)
---     err_file:write(str..'\n')
--- end
-
 
 local data = {
     state = '',
@@ -71,10 +66,10 @@ function initDisplay()
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
     local inp_str = 'n'
-    --while inp_str ~= 'y\n' or inp_str ~= 'n\n' do
---        term.write('please use \'y\' or \'n\'')
---        inp_str = term.read()
---    end
+    while inp_str ~= 'y\n' or inp_str ~= 'n\n' do
+        term.write('please use \'y\' or \'n\'')
+        inp_str = term.read()
+    end
     local ret
     if inp_str == 'n' then
         robot.select(16)
