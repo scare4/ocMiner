@@ -65,11 +65,12 @@ function initDisplay()
     term.write('  Welcome to the miner\n')
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
-    local inp_str = 'n'
-    while inp_str ~= 'y\n' or inp_str ~= 'n\n' do
+    local inp_str = ''
+    repeat
         term.write('please use \'y\' or \'n\'')
         inp_str = term.read()
-    end
+        inp_str = inp_str:sub(1,1)
+    until inp_str == 'n' or inp_str == 'y'
     local ret
     if inp_str == 'n' then
         robot.select(16)
