@@ -59,6 +59,42 @@ function initRobot() --resets the robot data
     writeData()
 end
 
+function dig() --if needed, digs the block in front of the robot
+    local front, what = robot.detect()
+    if not front or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing blocks movement
+        return
+    else
+        br = false
+        while not br do --hit until it breaks
+            br = robot.swing(sides.front)
+        end
+        robot.suck() --gather drop
+        data.mined_blocks = data.mined_blocks + 1 --update stats
+    end
+end
+
+function digUp() --if needed, digs the block on top of the robot
+    local top, what = robot.detectUp()
+    if not top or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing to break
+        return
+    else
+        local br = true
+        while br do --hit until it breaks
+            br = robot.swingUp(sides.top)
+        end
+        robot.suck() --gather drop
+        data.mined_blocks = data.mined_blocks + 1 --update stats
+    end
+end
+
+function moveForward()--moves the robot forward and if needed mines the block in front of the robot
+    local move = robot.forward()
+    while not move do
+        dig()
+        move = robot.forward()
+    end
+end
+
 function initDisplay() --welcomes the user and asks for the wanted parameters
     term.clear()
     gpu.setResolution(50, 16)   
@@ -195,42 +231,6 @@ function refuel() --if power is low, returns the robot to the charge pad, wait u
         recharge()
         returnToWorkPos()
         return true
-    end
-end
-
-function dig() --if needed, digs the block in front of the robot
-    local front, what = robot.detect()
-    if not front or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing blocks movement
-        return
-    else
-        br = false
-        while not br do --hit until it breaks
-            br = robot.swing(sides.front)
-        end
-        robot.suck() --gather drop
-        data.mined_blocks = data.mined_blocks + 1 --update stats
-    end
-end
-
-function digUp() --if needed, digs the block on top of the robot
-    local top, what = robot.detectUp()
-    if not top or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing to break
-        return
-    else
-        local br = true
-        while br do --hit until it breaks
-            br = robot.swingUp(sides.top)
-        end
-        robot.suck() --gather drop
-        data.mined_blocks = data.mined_blocks + 1 --update stats
-    end
-end
-
-function moveForward()--moves the robot forward and if needed mines the block in front of the robot
-    local move = robot.forward()
-    while not move do
-        dig()
-        move = robot.forward()
     end
 end
 
