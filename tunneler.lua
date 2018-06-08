@@ -338,7 +338,7 @@ function main(boot) --main program, boot is a boolean that decides if the progra
     else
         initData()
     end
-    refuel()
+    recharge()
     while data.moved_forwards < data.expected_forwards do --main loop
         refuel()
         emptyInventory()
