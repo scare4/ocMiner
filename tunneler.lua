@@ -286,7 +286,7 @@ function getEmptySlots() --returns the number of empty slots in the robt's inven
     local count = 0
     for i = 1,16 do
         robot.select(i)
-        if getStackInInternalSlot(i) == nil then
+        if component.inventory_controler.getStackInInternalSlot(i) == nil then
             count = cout + 1
         end
     end
