@@ -285,7 +285,6 @@ end
 function getEmptySlots() --returns the number of empty slots in the robt's inventory
     local count = 0
     for i = 1,16 do
-        robot.select(i)
         if component.inventory_controller.getStackInInternalSlot(i) == nil then
             count = count + 1
         end
@@ -302,7 +301,6 @@ function emptyInventory() --if needed, empties the robots inventory in the chest
         robot.turnLeft()
         robot.turnLeft()
         for i = 1,16 do
-            robot.select(i)
             local item = component.inventory_controller.getStackInInternalSlot(i)
             if item.name ~= "minecraft:cobblestone" then
                 robot.drop()
