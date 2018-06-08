@@ -223,6 +223,9 @@ function digLeftSide() --digs the left side corridor
         if refuel() then
             return
         end
+        if emptyInventory() then
+            return
+        end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides + 1
@@ -233,6 +236,9 @@ function digLeftSide() --digs the left side corridor
     data.orientation = 3
     while data.moved_sides > 0 do --returns to center
         if refuel() then
+            return
+        end
+        if emptyInventory() then
             return
         end
         moveForward()
@@ -250,6 +256,9 @@ function digRightSide() --digs the right side corridor
         if refuel() then
             return
         end
+        if emptyInventory() then
+            return
+        end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides - 1
@@ -260,6 +269,9 @@ function digRightSide() --digs the right side corridor
     data.orientation = 1
     while data.moved_sides < 0 do --returns to center
         if refuel() then
+            return
+        end
+        if emptyInventory() then
             return
         end
         moveForward()
@@ -313,6 +325,7 @@ function main(boot) --main program, boot is a boolean that decides if the progra
     refuel()
     while data.moved_forwards < data.expected_forwards do --main loop
         refuel()
+        emptyInventory()
         moveForward()
         digUp()
         data.moved_forwards = data.moved_forwards + 1
