@@ -6,7 +6,7 @@ local term = require('term')
 local computer = require('computer')
 
 local redstone = component.redstone --sub libraries
-local gpu = compoennt.gpu
+local gpu = component.gpu
 
 local data_path = './data/miner_data.json' --path to save file
 
