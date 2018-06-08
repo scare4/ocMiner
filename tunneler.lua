@@ -176,13 +176,13 @@ function returnToWorkPos() --returns the robot from the charge pad to its curren
 end
 
 function recharge()
-    for i=1,6 do --output redstone to activate the charger
+    for i=0,5 do --output redstone to activate the charger
         redstone.setOutput(i, 15)
     end
     while (computer.energy() / computer.maxEnergy() * 100) < 95 do --wait until charge
         os.sleep(1)
     end
-    for i=1,6 do --stops outputing redstone
+    for i=0,5 do --stops outputing redstone
         redstone.setOutput(i, 0)
     end
 end
