@@ -165,7 +165,7 @@ end
 
 function returnToWorkPos() --returns the robot from the charge pad to its current work position after recharge
     while data.moved_forwards < tmp_data.moved_forwards do --goes back to corridor
-        robot.forward()
+        moveForward()
         data.moved_forwards = data.moved_forwards + 1
     end
     if tmp_data.moved_sides > 0 then --resume activity
