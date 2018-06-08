@@ -1,16 +1,16 @@
-local json = require('stdlibs.json')
+local json = require('libs.json') --libraries
 local robot = require('robot')
 local sides = require('sides')
 local component = require('component')
 local term = require('term')
 local computer = require('computer')
 
-local redstone = component.redstone
-local gpu = term.gpu()
+local redstone = component.redstone --sub libraries
+local gpu = component.gpu
 
-local data_path = './data/miner_data.json'
+local data_path = './data/miner_data.json' --path to save file
 
-local data = {
+local data = { --main program data
     state = '',
     mined_blocks = 0,
     moved_forwards = 0,
@@ -20,7 +20,7 @@ local data = {
     expected_sideways = 10
 }
 
-local tmp_data = {
+local tmp_data = { --temporary data used to store data when returning to charge pad
     state = '',
     mined_blocks = 0,
     moved_forwards = 0,
@@ -30,7 +30,7 @@ local tmp_data = {
     expected_sideways = 0
 }
 
-function initData()
+function initData() --loads saved data
     local data_file = io.open(data_path, 'r')
     local json_string = data_file:read('*all')
     local json_data = json.decode(json_string)
@@ -43,14 +43,14 @@ function initData()
     data.expected_sideways = json_data.expected_sideways
 end
 
-function writeData()
+function writeData() --writes current robot data the the file
     local json_string = json.encode(data)
     local data_file = io.open(data_path, 'w')
     data_file:write(json_string)
     data_file:close()
 end
 
-function initRobot()
+function initRobot() --resets the robot data
     data.state = 'start'
     data.mined_blocks = 0
     data.moved_forwards = 0
@@ -59,34 +59,28 @@ function initRobot()
     writeData()
 end
 
-function initDisplay()
+function initDisplay() --welcomes the user and asks for the wanted parameters
     term.clear()
     gpu.setResolution(50, 16)   
-    term.write('  Welcome to the miner\n')
+    term.write('  Welcome to the miner\n') --greetings
     term.write('------------------------\n')
     term.write('do you want to load last session parametters ?(y/n)')
     local inp_str = ''
-    repeat
+    repeat --validity check for (y/n) input
         term.write('please use \'y\' or \'n\'')
         inp_str = term.read()
         inp_str = inp_str:sub(1,1)
     until inp_str == 'n' or inp_str == 'y'
     local ret
     if inp_str == 'n' then
-        robot.select(16)
-        if not robot.compareDown() then
-            term.write('please put the robot on top of the block in slot 16 (bottom right corner) facing towards the excavation direction')
-            os.exit()
-        else
-            ret = true
-        end
+        ret = true
     else
         ret = false
     end
     term.clear()
     if ret then
-        term.write('Starting a new session\n')
-        term.write('Please enter the length of the tunnel (positive integer)\n')
+        term.write('Starting a new session\n') --aquirring new parameters
+        term.write('Please enter the length of the tunnel (positive integer)\n') --legth
         local correct_input = false
         local inp_str = ''
         repeat
@@ -99,7 +93,7 @@ function initDisplay()
                 term.write('Invalid input, please enter a positive integer')
             end
         until (correct_input)
-        term.write('Please enter the width of the tunnel (positive integer)\n')
+        term.write('Please enter the width of the tunnel (positive integer)\n') --width
         correct_input = false
         inp_str = ''
         repeat
@@ -118,9 +112,9 @@ function initDisplay()
     return ret
 end
 
-function returnToCharge()
+function returnToCharge() --returns the robot to the charge pad for recharge
     tmp_data = data
-    if data.orientation ~= 0 then
+    if data.orientation ~= 0 then --returns to center corridor
         if data.orientation == 3 then
             while data.moved_sides < 0 do
                 robot.back()
@@ -145,36 +139,36 @@ function returnToCharge()
             data.orientation = 0
         end
     end
-    while data.moved_forwards > 0 do
+    while data.moved_forwards > 0 do --return to charge pad
         robot.back()
         data.moved_forwards = data.moved_forwards - 1
     end
 end
 
-function returnToWorkPos()
-    while data.moved_forwards < tmp_data.moved_forwards do
+function returnToWorkPos() --returns the robot from the charge pad to its current work position after recharge
+    while data.moved_forwards < tmp_data.moved_forwards do --goes back to corridor
         robot.forward()
         data.moved_forwards = data.moved_forwards + 1
     end
-    if tmp_data.moved_sides > 0 then
+    if tmp_data.moved_sides > 0 then --resume activity
         digLeftSide()
     elseif tmp_data.moved_sides < 0 then
         digRightSide()
     end
 end
 
-function refuel()
-    local energy_level = computer.energy() / computer.maxEnergy() * 100
+function refuel() --if power is low, returns the robot to the charge pad, wait until full charge, returns to the actual working pos and return true, false if charge is not needed
+    local energy_level = computer.energy() / computer.maxEnergy() * 100 --checks for power level
     if energy_level < 10 then
         term.write('low power, going to charge pad')
         returnToCharge()
-        for i=1,6 do
+        for i=1,6 do --output redstone to activate the charger
             redstone.setOutput(i, 15)
         end
-        while (computer.energy() / computer.maxEnergy() * 100) < 95 do
+        while (computer.energy() / computer.maxEnergy() * 100) < 95 do --wait until charge
             os.sleep(1)
         end
-        for i=1,6 do
+        for i=1,6 do --stops outputing redstone
             redstone.setOutput(i, 0)
         end
         returnToWorkPos()
@@ -182,35 +176,35 @@ function refuel()
     end
 end
 
-function dig()
+function dig() --if needed, digs the block in front of the robot
     local front, what = robot.detect()
-    if not front or what == "replaceable" or what == "liquid" or what == "entity" then
+    if not front or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing blocks movement
         return
     else
         br = false
-        while not br do
+        while not br do --hit until it breaks
             br = robot.swing(sides.front)
         end
-        robot.suck()
-        data.mined_blocks = data.mined_blocks + 1
+        robot.suck() --gather drop
+        data.mined_blocks = data.mined_blocks + 1 --update stats
     end
 end
 
-function digUp()
+function digUp() --if needed, digs the block on top of the robot
     local top, what = robot.detectUp()
-    if not top or what == "replaceable" or what == "liquid" then
+    if not top or what == "replaceable" or what == "liquid" or what == "entity" then --if nothing to break
         return
     else
         local br = true
-        while br do
+        while br do --hit until it breaks
             br = robot.swingUp(sides.top)
         end
-        robot.suck()
-        data.mined_blocks = data.mined_blocks + 1
+        robot.suck() --gather drop
+        data.mined_blocks = data.mined_blocks + 1 --update stats
     end
 end
 
-function moveForward()
+function moveForward()--moves the robot forward and if needed mines the block in front of the robot
     local move = robot.forward()
     while not move do
         dig()
@@ -218,84 +212,79 @@ function moveForward()
     end
 end
 
-function digLeftSide()
+function digLeftSide() --digs the left side corridor
     robot.turnLeft()
     data.orientation = 1
-    while data.moved_sides < data.expected_sideways do
+    while data.moved_sides < data.expected_sideways do --goes to the end of the corridor
         if refuel() then
             return
         end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides + 1
+        writeData()
     end
     robot.turnLeft()
     robot.turnLeft()
     data.orientation = 3
-    while data.moved_sides > 0 do
+    while data.moved_sides > 0 do --returns to center
         if refuel() then
             return
         end
         moveForward()
         data.moved_sides = data.moved_sides - 1
+        writeData()
     end
     robot.turnLeft()
     data.orientation = 0
 end
 
-function digRightSide()
+function digRightSide() --digs the right side corridor
     robot.turnRight()
     data.orientation = 3
-    while data.moved_sides > (data.expected_sideways * -1) do
+    while data.moved_sides > (data.expected_sideways * -1) do --goes to the end of the corridor
         if refuel() then
             return
         end
         moveForward()
         digUp()
         data.moved_sides = data.moved_sides - 1
+        writeData()
     end
     robot.turnRight()
     robot.turnRight()
     data.orientation = 1
-    while data.moved_sides < 0 do
+    while data.moved_sides < 0 do --returns to center
         if refuel() then
             return
         end
         moveForward()
         data.moved_sides = data.moved_sides + 1
+        writeData()
     end
     robot.turnRight()
     data.orientation = 0
 end
 
-function digNextLane()
-    moveForward()
-    data.moved_forwards = data.moved_forwards + 1
-    digUp()
-    refuel()
-    digLeftSide()
-    digRightSide()
-end
-
-function main(boot)
+function main(boot) --main program, boot is a boolean that decides if the program should reset or load saved data
     if boot then
         initRobot()
     else
-        initData()    
+        initData()
     end
     refuel()
-    while data.moved_forwards < data.expected_forwards do
+    while data.moved_forwards < data.expected_forwards do --main loop
         refuel()
         moveForward()
         digUp()
         data.moved_forwards = data.moved_forwards + 1
-        if data.moved_forwards % 3 == 0 then
+        if data.moved_forwards % 3 == 0 then --dig side corridors for 1 in 3 steps forward
             digLeftSide()
             digRightSide()
         end
         writeData()
     end
-    returnToCharge()
+    returnToCharge() --return to starting position
     term.write('A job well done, blocks mined : '..data.mined_blocks)
 end
 
