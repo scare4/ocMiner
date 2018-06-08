@@ -37,7 +37,7 @@ function initData() --loads saved data
     data.state = json_data.state
     data.mined_blocks = json_data.mined_blocks
     data.moved_forwards = json_data.moved_forwards
-    data.moved_side = json_data.moved_side
+    data.moved_sides = json_data.moved_sides
     data.orientation = json_data.orientation
     data.expected_forwards = json_data.expected_forwards
     data.expected_sideways = json_data.expected_sideways
@@ -54,7 +54,7 @@ function initRobot() --resets the robot data
     data.state = 'start'
     data.mined_blocks = 0
     data.moved_forwards = 0
-    data.moved_side = 0
+    data.moved_sides = 0
     data.orientation = 0
     writeData()
 end
@@ -116,33 +116,51 @@ function returnToCharge() --returns the robot to the charge pad for recharge
     tmp_data = data
     if data.orientation ~= 0 then --returns to center corridor
         if data.orientation == 3 then
-            while data.moved_sides < 0 do
-                robot.back()
-                data.moved_sides = data.moved_sides + 1
-            end
-            while data.moved_sides > 0 do
-                robot.forward()
-                data.moved_sides = data.moved_sides - 1
+            if data.moved_sides < 0 then
+                robot.turnLeft()
+                robot.turnLeft()
+                while data.moved_sides < 0 do
+                    moveForward()
+                    data.moved_sides = data.moved_sides + 1
+                end
+                robot.turnLeft()
+                robot.turnLeft()
+            else
+                while data.moved_sides > 0 do
+                    moveForward()
+                    data.moved_sides = data.moved_sides - 1
+                end
             end
             robot.turnLeft()
             data.orientation = 0
         else
-            while data.moved_sides < 0 do
-                robot.forward()
-                data.moved_sides = data.moved_sides + 1
-            end
-            while data.moved_sides > 0 do
-                robot.back()
-                data.moved_sides = data.moved_sides - 1
+            if data.moved_sides < 0 then
+                while data.moved_sides < 0 do
+                    moveForward()
+                    data.moved_sides = data.moved_sides + 1
+                end
+            elseif data.moved_sides > 0 then
+                robot.turnLeft()
+                robot.turnLeft()
+                while data.moved_sides > 0 do
+                    moveForward()
+                    data.moved_sides = data.moved_sides - 1
+                end
+                robot.turnLeft()
+                robot.turnLeft()
             end
             robot.turnRight()
             data.orientation = 0
         end
     end
+    robot.turnRight()
+    robot.turnRight()
     while data.moved_forwards > 0 do --return to charge pad
-        robot.back()
+        moveForward()
         data.moved_forwards = data.moved_forwards - 1
     end
+    robot.turnRight()
+    robot.turnRight()
 end
 
 function returnToWorkPos() --returns the robot from the charge pad to its current work position after recharge
