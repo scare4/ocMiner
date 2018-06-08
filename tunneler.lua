@@ -30,6 +30,21 @@ local tmp_data = { --temporary data used to store data when returning to charge 
     expected_sideways = 0
 }
 
+function deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+        setmetatable(copy, deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
 function initData() --loads saved data
     local data_file = io.open(data_path, 'r')
     local json_string = data_file:read('*all')
@@ -149,7 +164,7 @@ function initDisplay() --welcomes the user and asks for the wanted parameters
 end
 
 function returnToCharge() --returns the robot to the charge pad for recharge
-    tmp_data = data
+    tmp_data = deepcopy(data)
     if data.orientation ~= 0 then --returns to center corridor
         if data.orientation == 3 then
             if data.moved_sides < 0 then
@@ -331,7 +346,9 @@ function emptyInventory() --if needed, empties the robots inventory in the chest
         end
         robot.turnLeft()
         robot.turnLeft()
+        term.write('unloaded, returning to working position\n')
         returnToWorkPos()
+        term.write('returned to working position')
     end
 end
 
