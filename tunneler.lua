@@ -157,20 +157,24 @@ function returnToWorkPos() --returns the robot from the charge pad to its curren
     end
 end
 
+function recharge()
+    for i=1,6 do --output redstone to activate the charger
+        redstone.setOutput(i, 15)
+    end
+    while (computer.energy() / computer.maxEnergy() * 100) < 95 do --wait until charge
+        os.sleep(1)
+    end
+    for i=1,6 do --stops outputing redstone
+        redstone.setOutput(i, 0)
+    end
+end
+
 function refuel() --if power is low, returns the robot to the charge pad, wait until full charge, returns to the actual working pos and return true, false if charge is not needed
     local energy_level = computer.energy() / computer.maxEnergy() * 100 --checks for power level
     if energy_level < 10 then
         term.write('low power, going to charge pad')
         returnToCharge()
-        for i=1,6 do --output redstone to activate the charger
-            redstone.setOutput(i, 15)
-        end
-        while (computer.energy() / computer.maxEnergy() * 100) < 95 do --wait until charge
-            os.sleep(1)
-        end
-        for i=1,6 do --stops outputing redstone
-            redstone.setOutput(i, 0)
-        end
+        recharge()
         returnToWorkPos()
         return true
     end
@@ -264,6 +268,40 @@ function digRightSide() --digs the right side corridor
     end
     robot.turnRight()
     data.orientation = 0
+end
+
+function getEmptySlots() --returns the number of empty slots in the robt's inventory
+    local count = 0
+    for i = 1,16 do
+        robot.select(i)
+        if getStackInInternalSlot(i) == nil then
+            count = cout + 1
+        end
+    end
+    return count
+end
+
+function emptyInventory() --if needed, empties the robots inventory in the chest behind the starting pos
+    if getEmptySlots() > 1 then
+        return false
+    else
+        returnToCharge()
+        recharge()
+        robot.turnLeft()
+        robot.turnLeft()
+        for i = 1,16 do
+            robot.select(i)
+            local item = component.inventory_controller.getStackInInternalSlot(i)
+            if item.name ~= "minecraft:cobblestone" then
+                robot.drop()
+            else
+                robot.dropDown()
+            end
+        end
+        robot.turnLeft()
+        robot.turnLeft()
+        returnToWorkPos()
+    end
 end
 
 function main(boot) --main program, boot is a boolean that decides if the program should reset or load saved data
