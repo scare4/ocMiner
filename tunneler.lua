@@ -319,6 +319,7 @@ function emptyInventory() --if needed, empties the robots inventory in the chest
         robot.turnLeft()
         robot.turnLeft()
         for i = 1,16 do
+            robot.select(i)
             local item = component.inventory_controller.getStackInInternalSlot(i)
             if item.name ~= "minecraft:cobblestone" then
                 robot.drop()
