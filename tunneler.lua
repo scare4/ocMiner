@@ -37,16 +37,32 @@ end
 
 local tmp_data = deepcopy(data)
 
+function formatSerializedData(str)
+    str = string.gsub(str, ",", ",\n")
+    str = string.gsub(str, "{", "{\n")
+    str = string.gsub(str, "}", "}\n")
+    return str
+end
+
+function deFormatSerializedData(str)
+    str = string.gsub(str, ",\n", ",")
+    str = string.gsub(str, "{\n", "{")
+    str = string.gsub(str, "}\n", "}")
+    return str
+end
+
 function initData() --loads saved data
     local data_file = io.open(data_path, 'r') --read data file
     local data_str = data_file:read('*all')
     data_file:close()
+    data_str = deFormatSerializedData(data_str)
     data = serializer.unserialize(data_str) --deserialization
 end
 
 function writeData() --writes current robot data the the file
     local data_str = serializer.serialize(data) --serialization
     local data_file = io.open(data_path, 'w') --write data file
+    data_str = formatSerializedData(data_str)
     data_file:write(data_str)
     data_file:close()
 end
