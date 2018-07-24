@@ -41,7 +41,7 @@ function initData() --loads saved data
     local data_file = io.open(data_path, 'r') --read data file
     local data_str = data_file:read('*all')
     data_file:close()
-    data = serializer.deserialize(data_str) --deserialization
+    data = serializer.unserialize(data_str) --deserialization
 end
 
 function writeData() --writes current robot data the the file
