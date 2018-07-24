@@ -1,4 +1,4 @@
-local json = require('libs.json') --libraries
+local serializer = require('serialization') --libraries
 local robot = require('robot')
 local sides = require('sides')
 local component = require('component')
@@ -8,7 +8,7 @@ local computer = require('computer')
 local redstone = component.redstone --sub libraries
 local gpu = component.gpu
 
-local data_path = './data/miner_data.json' --path to save file
+local data_path = './data/miner_data.dat' --path to save file
 
 local data = { --main program data
     state = '',
@@ -20,16 +20,6 @@ local data = { --main program data
     expected_sideways = 10
 }
 
-local tmp_data = { --temporary data used to store data when returning to charge pad
-    state = '',
-    mined_blocks = 0,
-    moved_forwards = 0,
-    moved_sides = 0,
-    orientation = 0,
-    expected_forwards = 0,
-    expected_sideways = 0
-}
-
 function deepcopy(orig)
     local orig_type = type(orig)
     local copy
@@ -39,29 +29,25 @@ function deepcopy(orig)
             copy[deepcopy(orig_key)] = deepcopy(orig_value)
         end
         setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
+    else --number, string, boolean, etc
         copy = orig
     end
     return copy
 end
 
+local tmp_data = deepcopy(data)
+
 function initData() --loads saved data
-    local data_file = io.open(data_path, 'r')
-    local json_string = data_file:read('*all')
-    local json_data = json.decode(json_string)
-    data.state = json_data.state
-    data.mined_blocks = json_data.mined_blocks
-    data.moved_forwards = json_data.moved_forwards
-    data.moved_sides = json_data.moved_sides
-    data.orientation = json_data.orientation
-    data.expected_forwards = json_data.expected_forwards
-    data.expected_sideways = json_data.expected_sideways
+    local data_file = io.open(data_path, 'r') --read data file
+    local data_str = data_file:read('*all')
+    data_file:close()
+    data = serializer.deserialize(data_str) --deserialization
 end
 
 function writeData() --writes current robot data the the file
-    local json_string = json.encode(data)
-    local data_file = io.open(data_path, 'w')
-    data_file:write(json_string)
+    local data_str = serializer.serialize(data) --serialization
+    local data_file = io.open(data_path, 'w') --write data file
+    data_file:write(data_str)
     data_file:close()
 end
 
